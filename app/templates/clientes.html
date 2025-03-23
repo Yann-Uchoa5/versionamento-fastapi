@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Clientes</title>
+</head>
+
+<body class="bg-gray-700">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+          </button>
+        </div>
+        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex shrink-0 items-center">
+            <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+          </div>
+          <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4">
+              <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+              <a href="/home" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Home</a>
+              <a href="./listaProdutos" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Produtos</a>
+              <a href="./listaClientes" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Clientes</a>
+              <a href="./listaPedidos" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Pedidos</a>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button id="logout-btn" class=" text-white px-4 py-2 rounded-md ">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto py-12">
+    <h1 class="text-3xl font-bold text-center text-gray-100 mb-8">Lista de Clientes</h1>
+
+    <!-- Botão para adicionar paciente -->
+    <div class="text-right mb-4">
+      <button onclick="abrirModal('addModal')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Adicionar Cliente</button>
+    </div>
+
+    <!-- Tabela -->
+    <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="py-3 px-6 text-left">Nome</th>
+          <th class="py-3 px-6 text-left">Email</th>
+          <th class="py-3 px-6 text-left">Telefone</th>
+          <th class="py-3 px-6 text-left">Endereço</th>
+          <th class="py-3 px-6 text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="table-body" class="text-gray-700">
+        <!-- Linhas dinâmicas serão inseridas aqui -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal para Adicionar Paciente -->
+  <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+      <h2 class="text-lg font-bold mb-4">Adicionar Cliente</h2>
+      <form id="form-add">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Nome</label>
+          <input type="text" id="nome" name="nome" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="number" id="idade" name="idade" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Telefone</label>
+          <input type="text" id="historico_medico" name="historico_medico" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="text-right">
+          <button type="button" onclick="fecharModal('addModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Editar Paciente -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+      <h2 class="text-lg font-bold mb-4">Editar Cliente</h2>
+      <form id="form-edit">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Nome</label>
+          <input type="text" id="edit-nome" name="nome" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="number" id="edit-idade" name="idade" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Telefone</label>
+          <input type="text" id="edit-historico_medico" name="historico_medico" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="text-right">
+          <button type="button" onclick="fecharModal('editModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "http://127.0.0.1:8000/clientes";
+
+    // Função para buscar a lista de clientes
+    async function fetchClientes() {
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = "";
+
+        data.forEach(cliente => {
+          const row = `
+            <tr class="border-b border-gray-200">
+              <td class="py-3 px-6">${cliente.id}</td>
+              <td class="py-3 px-6">${cliente.nome}</td>
+              <td class="py-3 px-6">${cliente.email}</td>
+              <td class="py-3 px-6">${cliente.telefone}</td>
+              <td class="py-3 px-6">${cliente.endereco}</td>
+              <td class="py-3 px-6 text-center">
+                <button onclick="editarPaciente(${cliente.id})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Editar</button>
+                <button onclick="deletarPaciente(${client.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Excluir</button>
+              </td>
+            </tr>
+          `;
+          tableBody.insertAdjacentHTML("beforeend", row);
+        });
+      } catch (error) {
+        console.error("Erro:", error);
+      }
+    }
+
+    // Função para abrir um modal
+    function abrirModal(id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    // Função para fechar um modal
+    function fecharModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    // Função para adicionar paciente
+    document.getElementById("form-add").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const telefone = document.getElementById("telefone").value;
+
+      try {
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, idade, historico_medico })
+        });
+        fecharModal("addModal");
+        fetchClientes();
+      } catch (error) {
+        console.error("Erro ao adicionar paciente:", error);
+      }
+    });
+
+    // Função para excluir paciente
+    async function deletarPaciente(id) {
+      try {
+        await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        fetchClientes();
+      } catch (error) {
+        console.error("Erro ao excluir paciente:", error);
+      }
+    }
+
+    // Função para editar paciente
+    async function editarPaciente(id) {
+      try {
+        const response = await fetch(`${apiUrl}/${id}`);
+        const paciente = await response.json();
+
+        document.getElementById("edit-nome").value = cliente.nome;
+        document.getElementById("edit-email").value = cliente.email;
+        document.getElementById("edit-telefone").value = cliente.telefone;
+
+        abrirModal('editModal');
+
+        document.getElementById("form-edit").onsubmit = async function (e) {
+          e.preventDefault();
+          const nome = document.getElementById("edit-nome").value;
+          const email = document.getElementById("edit-email").value;
+          const telefone = document.getElementById("edit-telefone").value;
+
+          try {
+            await fetch(`${apiUrl}/${id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ nome, idade, historico_medico })
+            });
+            fecharModal("editModal");
+            fetchClientes();
+          } catch (error) {
+            console.error("Erro ao editar cliente:", error);
+          }
+        };
+
+      } catch (error) {
+        console.error("Erro ao buscar cliente:", error);
+      }
+    }
+
+    // Chamar função ao carregar a página
+    function verificarAutenticacao() {
+      const token = localStorage.getItem("access_token"); // Ou sessionStorage.getItem("auth_token")
+      if (!token) {
+        // Se não houver token, redireciona para a tela de login
+        window.location.href = "/"; // Substitua "/login" pela URL da sua página de login
+      }
+    }
+
+    window.onload = function () {
+      //verificarAutenticacao();
+      fetchClientes();
+    };
+
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      localStorage.removeItem('access_token');
+      window.location.href = '/';
+    });
+  </script>
+</body>
+
+</html>
