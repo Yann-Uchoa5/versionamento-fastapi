@@ -102,6 +102,16 @@ class UserCreate(BaseModel):
     class Config:
         from_orm = True
 
+class UserOut(BaseModel):
+    id: int
+    username: str
+    email: str
+    full_name: Optional[str] = None
+
+
+    class Config:
+        orm_mode = True
+
 
 class UserLogin(BaseModel):
     username: str
