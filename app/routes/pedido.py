@@ -40,7 +40,7 @@ async def create_pedido(pedido: schemas.PedidoCreate, db: Session = Depends(get_
         raise HTTPException(status_code=400, detail=f"Erro ao criar pedido: {str(e)}")
     return db_pedido
 
-# Rota para listar todos os pedidos
+
 @router.get("/", response_model=list[schemas.PedidoOut])
 def get_pedidos(db: Session = Depends(get_db)):
     pedidos = db.query(models.Pedido).all()

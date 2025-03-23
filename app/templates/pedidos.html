@@ -44,11 +44,11 @@
     <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
       <thead class="bg-gray-800 text-white">
         <tr>
-          <th class="py-3 px-6 text-left">ID</th>
-          <th class="py-3 px-6 text-left">Produto</th>
           <th class="py-3 px-6 text-left">Cliente</th>
+          <th class="py-3 px-6 text-left">Produto</th>
           <th class="py-3 px-6 text-left">Data</th>
-          <th class="py-3 px-6 text-left">Quantidade</th>
+          <th class="py-3 px-6 text-left">Status</th>
+          <th class="py-3 px-6 text-left">Total</th>
           <th class="py-3 px-6 text-center">Ações</th>
         </tr>
       </thead>
@@ -64,24 +64,28 @@
       <h2 class="text-lg font-bold mb-4">Adicionar Pedido</h2>
       <form id="form-add">
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Produto</label>
-          <select id="produto_id" name="produto_id" class="mt-1 p-2 border w-full rounded" required>
+          <label class="block text-sm font-medium text-gray-700">Cliente</label>
+          <select id="cliente_id" name="cliente_id" class="mt-1 p-2 border w-full rounded" required>
             <!-- Opções de produtos serão carregadas aqui -->
           </select>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Cliente</label>
-          <select id="cliente_id" name="cliente_id" class="mt-1 p-2 border w-full rounded" required>
+          <label class="block text-sm font-medium text-gray-700">Produto</label>
+          <select id="produto_id" name="produto_id" class="mt-1 p-2 border w-full rounded" required>
             <!-- Opções de clientes serão carregadas aqui -->
           </select>
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Data</label>
-          <input type="date" id="data" name="data" class="mt-1 p-2 border w-full rounded" required>
+          <input type="date" id="data_pedido" name="data_pedido" class="mt-1 p-2 border w-full rounded" required>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Quantidade</label>
-          <input type="number" id="quantidade" name="quantidade" class="mt-1 p-2 border w-full rounded" required>
+          <label class="block text-sm font-medium text-gray-700">Status</label>
+          <input type="text" id="status" name="status" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Total</label>
+          <input type="number" id="total" name="total" class="mt-1 p-2 border w-full rounded" required>
         </div>
         <div class="text-right">
           <button type="button" onclick="fecharModal('addModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
@@ -90,6 +94,40 @@
       </form>
     </div>
   </div>
+
+
+<!-- Modal para Editar Pedido -->
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded-lg shadow-md w-96">
+    <h2 class="text-lg font-bold mb-4">Editar Pedido</h2>
+    <form id="form-edit">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Cliente</label>
+        <select id="edit-cliente_id" name="cliente_id" class="mt-1 p-2 border w-full rounded" required></select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Produto</label>
+        <select id="edit-produto_id" name="produto_id" class="mt-1 p-2 border w-full rounded" required></select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Data</label>
+        <input type="date" id="edit-data_pedido" name="data_pedido" class="mt-1 p-2 border w-full rounded" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Status</label>
+        <input type="text" id="edit-status" name="status" class="mt-1 p-2 border w-full rounded" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Total</label>
+        <input type="number" id="edit-total" name="total" class="mt-1 p-2 border w-full rounded" required>
+      </div>
+      <div class="text-right">
+        <button type="button" onclick="fecharModal('editModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
   <script>
     const apiUrl = "http://127.0.0.1:8000/pedidos";
@@ -108,11 +146,11 @@
         data.forEach(pedido => {
           const row = `
             <tr class="border-b border-gray-200">
-              <td class="py-3 px-6">${pedido.id}</td>
-              <td class="py-3 px-6">${pedido.produto_id}</td>
               <td class="py-3 px-6">${pedido.cliente_id}</td>
-              <td class="py-3 px-6">${pedido.data}</td>
-              <td class="py-3 px-6">${pedido.quantidade}</td>
+              <td class="py-3 px-6">${pedido.produto_id}</td>
+              <td class="py-3 px-6">${pedido.data_pedido}</td>
+              <td class="py-3 px-6">${pedido.status}</td>
+              <td class="py-3 px-6">${pedido.total}</td>
               <td class="py-3 px-6 text-center">
                 <button onclick="editarPedido(${pedido.id})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Editar</button>
                 <button onclick="excluirPedido(${pedido.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Excluir</button>
@@ -157,10 +195,11 @@
     async function adicionarPedido(event) {
       event.preventDefault();
 
-      const produto_id = document.getElementById("produto_id").value;
       const cliente_id = document.getElementById("cliente_id").value;
-      const data = document.getElementById("data").value;
-      const quantidade = document.getElementById("quantidade").value;
+      const produto_id = document.getElementById("produto_id").value;
+      const data_pedido = document.getElementById("data_pedido").value;
+      const status = document.getElementById("status").value;
+      const total = document.getElementById("total").value;
 
       try {
         await fetch(apiUrl, {
@@ -169,10 +208,11 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            produto_id,
             cliente_id,
-            data,
-            quantidade
+            produto_id,
+            data_pedido,
+            status,
+            total
           })
         });
         fecharModal("addModal");
@@ -185,19 +225,60 @@
     // Função para editar pedido
     async function editarPedido(id) {
       try {
+
+
         const response = await fetch(`${apiUrl}/${id}`);
         const pedido = await response.json();
 
         // Preenche os campos do formulário com os dados do pedido
-        document.getElementById("produto_id").value = pedido.produto_id;
-        document.getElementById("cliente_id").value = pedido.cliente_id;
-        document.getElementById("data").value = pedido.data;
-        document.getElementById("quantidade").value = pedido.quantidade;
+        document.getElementById("edit-cliente_id").value = pedido.cliente_id;
+        document.getElementById("edit-produto_id").value = pedido.produto_id;
+        document.getElementById("edit-data_pedido").value = pedido.data_pedido;
+        document.getElementById("edit-status").value = pedido.status;
+        document.getElementById("edit-total").value = pedido.total;
 
         // Abre o modal para edição
-        abrirModal("addModal");
+        abrirModal("editModal");
+
+        document.getElementById("form-edit").onsubmit = async function (e) {
+          e.preventDefault();
+
+
+          const cliente_id = document.getElementById("edit-cliente_id").value;
+          const produto_id = document.getElementById("edit-produto_id").value;
+          const data_pedido = document.getElementById("edit-data_pedido").value;
+          const status = document.getElementById("edit-status").value;
+          const total = document.getElementById("edit-total").value;
+
+          const dataFormatada = new Date(`${data}T${hora}:00`).toISOString();
+          const [dataParte] = dataFormatada.split("T");
+
+          try {
+            await fetch(`${apiUrl}/${id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                cliente_id,
+                produto_id,
+                data_pedido: dataParte,
+                status,
+                total
+              })
+            });
+
+
+            fecharModal("editModal");
+            fetchPedidos(); // Atualiza a lista de consultas
+
+
       } catch (error) {
         console.error("Erro ao editar pedido:", error);
+      }
+    };
+  } catch (error) {
+        console.error("Erro ao carregar consulta:", error);
       }
     }
 

@@ -81,11 +81,15 @@
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="number" id="idade" name="idade" class="mt-1 p-2 border w-full rounded" required>
+          <input type="text" id="email" name="email" class="mt-1 p-2 border w-full rounded" required>
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Telefone</label>
-          <input type="text" id="historico_medico" name="historico_medico" class="mt-1 p-2 border w-full rounded" required>
+          <input type="number" id="telefone" name="telefone" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Endereço</label>
+          <input type="text" id="endereco" name="endereco" class="mt-1 p-2 border w-full rounded" required>
         </div>
         <div class="text-right">
           <button type="button" onclick="fecharModal('addModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
@@ -106,11 +110,15 @@
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="number" id="edit-idade" name="idade" class="mt-1 p-2 border w-full rounded" required>
+          <input type="text" id="edit-email" name="email" class="mt-1 p-2 border w-full rounded" required>
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Telefone</label>
-          <input type="text" id="edit-historico_medico" name="historico_medico" class="mt-1 p-2 border w-full rounded" required>
+          <input type="number" id="edit-telefone" name="telefone" class="mt-1 p-2 border w-full rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Endereço</label>
+          <input type="text" id="edit-endereco" name="endereco" class="mt-1 p-2 border w-full rounded" required>
         </div>
         <div class="text-right">
           <button type="button" onclick="fecharModal('editModal')" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
@@ -135,14 +143,13 @@
         data.forEach(cliente => {
           const row = `
             <tr class="border-b border-gray-200">
-              <td class="py-3 px-6">${cliente.id}</td>
               <td class="py-3 px-6">${cliente.nome}</td>
               <td class="py-3 px-6">${cliente.email}</td>
               <td class="py-3 px-6">${cliente.telefone}</td>
               <td class="py-3 px-6">${cliente.endereco}</td>
               <td class="py-3 px-6 text-center">
-                <button onclick="editarPaciente(${cliente.id})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Editar</button>
-                <button onclick="deletarPaciente(${client.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Excluir</button>
+                <button onclick="editarCliente(${cliente.id})" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Editar</button>
+                <button onclick="deletarCliente(${cliente.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Excluir</button>
               </td>
             </tr>
           `;
@@ -163,45 +170,48 @@
       document.getElementById(id).classList.add("hidden");
     }
 
-    // Função para adicionar paciente
+    // Função para adicionar cliente
     document.getElementById("form-add").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nome = document.getElementById("nome").value;
       const email = document.getElementById("email").value;
       const telefone = document.getElementById("telefone").value;
+      const endereco = document.getElementById("endereco").value;
+      
 
       try {
         await fetch(apiUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome, idade, historico_medico })
+          body: JSON.stringify({ nome, email, telefone, endereco })
         });
         fecharModal("addModal");
         fetchClientes();
       } catch (error) {
-        console.error("Erro ao adicionar paciente:", error);
+        console.error("Erro ao adicionar cliente:", error);
       }
     });
 
-    // Função para excluir paciente
-    async function deletarPaciente(id) {
+    // Função para excluir cliente
+    async function deletarCliente(id) {
       try {
         await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
         fetchClientes();
       } catch (error) {
-        console.error("Erro ao excluir paciente:", error);
+        console.error("Erro ao excluir cliente:", error);
       }
     }
 
-    // Função para editar paciente
-    async function editarPaciente(id) {
+    // Função para editar cliente
+    async function editarCliente(id) {
       try {
         const response = await fetch(`${apiUrl}/${id}`);
-        const paciente = await response.json();
+        const cliente = await response.json();
 
         document.getElementById("edit-nome").value = cliente.nome;
         document.getElementById("edit-email").value = cliente.email;
         document.getElementById("edit-telefone").value = cliente.telefone;
+        document.getElementById("edit-endereco").value = cliente.endereco;
 
         abrirModal('editModal');
 
@@ -210,12 +220,13 @@
           const nome = document.getElementById("edit-nome").value;
           const email = document.getElementById("edit-email").value;
           const telefone = document.getElementById("edit-telefone").value;
+          const endereco = document.getElementById("edit-endereco").value;
 
           try {
             await fetch(`${apiUrl}/${id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ nome, idade, historico_medico })
+              body: JSON.stringify({ nome, email, telefone, endereco })
             });
             fecharModal("editModal");
             fetchClientes();
