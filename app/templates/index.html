@@ -70,21 +70,34 @@
 
   <!-- Navbar -->
   <nav class="primary-color shadow-md">
-    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-          <img class="h-10" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Logo">
-          <div class="hidden sm:flex space-x-6 text-white">
-            <a href="/home" class="hover:text-gray-300">Home</a>
-            <a href="./listaProdutos" class="hover:text-gray-300">Produtos</a>
-            <a href="./listaClientes" class="hover:text-gray-300">Clientes</a>
-            <a href="./listaPedidos" class="hover:text-gray-300">Pedidos</a>
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <svg class="block size-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          <svg class="hidden size-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </div>
+        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex shrink-0 items-center">
+            <img class="h-8 w-auto" src="/authentic-master/app/images/freepik__background__61496.png" alt="Business">
+          </div>
+          <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4">
+              <a href="/home" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Home</a>
+              
+            </div>
           </div>
         </div>
-        <button id="logout-btn" class="text-white py-2 px-6 rounded-md hover:bg-gray-700">Logout</button>
+        <div class="flex items-center">
+          <button id="logout-btn" class="text-white px-4 py-2 rounded-md hover:bg-teal-600">Logout</button>
+        </div>
       </div>
     </div>
   </nav>
+  
 
   <!-- Hero Section -->
   <section class="relative bg-cover bg-center text-white h-screen pt-0" style="background-image: url('https://cargox.com.br/wp-content/uploads/2017/04/Controle-de-estoque-o-que-fazer-para-otimizar-e-evitar-perdas-1.jpg');">

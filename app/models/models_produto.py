@@ -8,6 +8,7 @@ class Produto(Base):
     nome = Column(String, nullable=False)
     descricao = Column(String, nullable=True)
     preco = Column(Float, nullable=False)
-    estoque = Column(Integer, nullable=False)  
+    estoque = Column(Integer, nullable=False)
+    imagem = Column(String, nullable=True)  # Nova coluna para armazenar a imagem em base64
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), default=None, onupdate=func.now())
