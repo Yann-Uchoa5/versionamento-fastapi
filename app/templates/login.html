@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BusinessSync - Login e Cadastro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      overflow: hidden;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #0F766E 0%, #1E3A8A 100%);
+    }
+    .container {
+      position: relative;
+      z-index: 10;
+    }
+    .form-box {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    .form-box.hidden {
+      transform: translateY(50px);
+      opacity: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+    .form-box:not(.hidden) {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .input-field {
+      position: relative;
+    }
+    .input-field input {
+      transition: all 0.3s ease;
+      border: 2px solid #e5e7eb;
+    }
+    .input-field input:focus {
+      border-color: #0F766E;
+      box-shadow: 0 0 10px rgba(15, 118, 110, 0.3);
+    }
+    .input-field label {
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      transform: translateY(-50%);
+      color: #6b7280;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .input-field input:focus + label,
+    .input-field input:not(:placeholder-shown) + label {
+      top: 0;
+      font-size: 12px;
+      color: #0F766E;
+      background: white;
+      padding: 0 5px;
+      transform: translateY(-50%);
+    }
+    .btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    .btn:hover::after {
+      width: 300px;
+      height: 300px;
+    }
+    .bg-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(15, 118, 110, 0.1);
+      animation: float 6s infinite ease-in-out;
+    }
+    .circle:nth-child(1) {
+      width: 200px;
+      height: 200px;
+      top: -50px;
+      left: -50px;
+      animation-delay: 0s;
+    }
+    .circle:nth-child(2) {
+      width: 150px;
+      height: 150px;
+      bottom: -30px;
+      right: -30px;
+      animation-delay: 2s;
+    }
+    .circle:nth-child(3) {
+      width: 100px;
+      height: 100px;
+      top: 20%;
+      right: 10%;
+      animation-delay: 4s;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="h-screen flex justify-center items-center">
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
+
+  <!-- Container -->
+  <div class="container w-full max-w-md animate-fade-in">
+    <!-- Formulário de Login -->
+    <div id="login-form" class="form-box p-8 relative">
+      <h2 class="text-3xl font-bold text-center gradient-bg bg-clip-text text-transparent mb-6">Login</h2>
+      <div class="space-y-6">
+        <div class="input-field">
+          <input id="login-username" type="text" class="p-3 w-full rounded-lg" placeholder=" " required>
+          <label for="login-username">Usuário</label>
+        </div>
+        <div class="input-field">
+          <input id="login-password" type="password" class="p-3 w-full rounded-lg" placeholder=" " required>
+          <label for="login-password">Senha</label>
+        </div>
+        <button id="login-btn" class="btn w-full gradient-bg text-white py-3 rounded-lg font-semibold transition duration-200">Entrar</button>
+        <p class="text-center text-sm text-gray-600">Não tem uma conta? <a href="#" id="switch-to-register" class="text-teal-600 hover:text-teal-700 font-semibold">Cadastre-se</a></p>
+      </div>
+    </div>
+
+    <!-- Formulário de Cadastro -->
+    <div id="register-form" class="form-box p-8 hidden relative">
+      <h2 class="text-3xl font-bold text-center gradient-bg bg-clip-text text-transparent mb-6">Junte-se ao BusinessSync</h2>
+      <div class="space-y-6">
+        <div class="input-field">
+          <input id="register-fullname" type="text" class="p-3 w-full rounded-lg" placeholder=" " required>
+          <label for="register-fullname">Nome Completo</label>
+        </div>
+        <div class="input-field">
+          <input id="register-username" type="text" class="p-3 w-full rounded-lg" placeholder=" " required>
+          <label for="register-username">Usuário</label>
+        </div>
+        <div class="input-field">
+          <input id="register-email" type="email" class="p-3 w-full rounded-lg" placeholder=" " required>
+          <label for="register-email">Email</label>
+        </div>
+        <div class="input-field">
+          <input id="register-password" type="password" class="p-3 w-full rounded-lg" placeholder=" " required>
+          <label for="register-password">Senha</label>
+        </div>
+        <button id="register-btn" class="btn w-full gradient-bg text-white py-3 rounded-lg font-semibold transition duration-200">Cadastrar</button>
+        <p class="text-center text-sm text-gray-600">Já tem uma conta? <a href="#" id="switch-to-login" class="text-teal-600 hover:text-teal-700 font-semibold">Faça login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginForm = document.getElementById("login-form");
+      const registerForm = document.getElementById("register-form");
+      const switchToRegister = document.getElementById("switch-to-register");
+      const switchToLogin = document.getElementById("switch-to-login");
+      const loginBtn = document.getElementById("login-btn");
+      const registerBtn = document.getElementById("register-btn");
+
+      // Verificar se o usuário já está autenticado
+      if (localStorage.getItem("access_token")) {
+        window.location.href = "/home";
+      }
+
+      // Alternar entre formulários
+      switchToRegister.addEventListener("click", (e) => {
+        e.preventDefault();
+        loginForm.classList.add("hidden");
+        registerForm.classList.remove("hidden");
+      });
+
+      switchToLogin.addEventListener("click", (e) => {
+        e.preventDefault();
+        registerForm.classList.add("hidden");
+        loginForm.classList.remove("hidden");
+      });
+
+      // Login
+      loginBtn.addEventListener("click", async () => {
+        const username = document.getElementById("login-username").value;
+        const password = document.getElementById("login-password").value;
+
+        if (!username || !password) {
+          alert("Preencha todos os campos!");
+          return;
+        }
+
+        const response = await fetch("http://localhost:8000/login/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ username, password }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert("Login bem-sucedido!");
+          localStorage.setItem("access_token", data.access_token);
+          window.location.href = "/home";
+        } else {
+          alert(`Erro: ${data.detail}`);
+        }
+      });
+
+      // Cadastro
+      registerBtn.addEventListener("click", async () => {
+        const fullName = document.getElementById("register-fullname").value;
+        const username = document.getElementById("register-username").value;
+        const email = document.getElementById("register-email").value;
+        const password = document.getElementById("register-password").value;
+
+        if (!fullName || !username || !email || !password) {
+          alert("Preencha todos os campos!");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("full_name", fullName);
+        formData.append("username", username);
+        formData.append("email", email);
+        formData.append("password", password);
+
+        const response = await fetch("http://localhost:8000/cadastrar/register", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert("Cadastro bem-sucedido!");
+          registerForm.classList.add("hidden");
+          loginForm.classList.remove("hidden");
+        } else {
+          alert(`Erro: ${data.detail}`);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

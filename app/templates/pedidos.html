@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Adicionando jsPDF via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Adicionando Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Pedidos - BusinessSync</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #0F766E 0%, #1E3A8A 100%);
+    }
+    .hover-scale {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-scale:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    .bg-pattern {
+      background-image: url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cpath d=\"M36 34v-4m-6 4v-4m-6 4v-4m12-12v-4m-6 4v-4m-6 4v-4\" stroke=\"%230F766E\" stroke-width=\"2\" opacity=\"0.1\"/%3E%3C/g%3E%3C/svg%3E');
+    }
+    .primary-teal {
+      color: #0F766E;
+    }
+    .hover-bg-teal-dark {
+      transition: background-color 0.3s ease;
+    }
+    .hover-bg-teal-dark:hover {
+      background-color: #115E59;
+    }
+    .chart-container {
+      position: relative;
+      min-height: 80px;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <!-- Navbar -->
+  <nav class="gradient-bg shadow-lg fixed w-full top-0 z-50">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <svg class="block size-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          <svg class="hidden size-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </div>
+        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex shrink-0 items-center">
+            <span class="ml-2 text-xl font-bold text-white">BusinessSync</span>
+          </div>
+          <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4">
+              <a href="/home" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover-bg-teal-dark hover:text-white">Home</a>
+              <a href="./listaProdutos" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover-bg-teal-dark hover:text-white">Produtos</a>
+              <a href="./listaClientes" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover-bg-teal-dark hover:text-white">Clientes</a>
+              <a href="./listaPedidos" class="rounded-md bg-teal-700/50 px-3 py-2 text-sm font-medium text-white hover-bg-teal-dark">Pedidos</a>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button id="logout-btn" class="text-white px-4 py-2 rounded-md hover-bg-teal-dark transition duration-200">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mx-auto py-24 px-4 bg-pattern min-h-screen">
+    <!-- Cabeçalho Estilizado -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-700 to-blue-900 mb-4">Lista de Pedidos</h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">Acompanhe e gerencie todos os pedidos do seu negócio em tempo real.</p>
+    </div>
+
+    <!-- Contador, Filtro e Botões -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 space-y-4 sm:space-y-0">
+      <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <svg class="w-6 h-6 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+        <span class="text-teal-700 font-semibold">Total de Pedidos: <span id="pedidos-count">0</span></span>
+      </div>
+      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+        <select id="status-filter" class="p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500">
+          <option value="">Todos os Status</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Concluído">Concluído</option>
+          <option value="Entregue">Entregue</option>
+        </select>
+        <div class="flex space-x-4">
+          <button onclick="abrirModal('addModal')" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover-bg-teal-dark transition duration-200">+ Adicionar Pedido</button>
+          <button onclick="gerarPDF()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">Gerar PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container de Cards -->
+    <div id="card-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards dinâmicos serão inseridos aqui -->
+    </div>
+
+    <!-- Detalhe Visual Inferior -->
+    <div class="mt-12 text-center">
+      <div class="inline-flex items-center space-x-2 bg-teal-50 px-6 py-3 rounded-full shadow-md">
+        <svg class="w-5 h-5 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <p class="text-teal-700">Edite ou exclua pedidos diretamente nos cards para manter tudo organizado.</p>
+      </div>
+    </div>
+
+    <!-- Dashboard de Estatísticas -->
+    <div class="mt-8 bg-white p-4 rounded-xl shadow-lg">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Estatísticas de Pedidos</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="chart-container">
+          <canvas id="statusChart" height="250" width="180"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="totalChart" height="250" width="150"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Adicionar Pedido -->
+  <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-96">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Adicionar Pedido</h2>
+      <form id="form-add">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Cliente</label>
+          <select id="cliente_id" name="cliente_id" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required>
+            <option value="">Selecione um cliente</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Produto</label>
+          <select id="produto_id" name="produto_id" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required>
+            <option value="">Selecione um produto</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Data</label>
+          <input type="datetime-local" id="data_pedido" name="data_pedido" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Status</label>
+          <select id="status" name="status" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required>
+            <option value="Pendente">Pendente</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Entregue">Entregue</option>
+          </select>
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700">Total</label>
+          <input type="number" id="total" name="total" class="mt-1 p-2 border border-gray-300 w-full rounded-lg bg-gray-100" step="0.01" readonly placeholder="Selecione um produto">
+        </div>
+        <div class="text-right space-x-2">
+          <button type="button" onclick="fecharModal('addModal')" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200">Cancelar</button>
+          <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover-bg-teal-dark transition duration-200">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Editar Pedido -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-96">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Editar Pedido</h2>
+      <form id="form-edit">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Cliente</label>
+          <select id="edit-cliente_id" name="cliente_id" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required></select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Produto</label>
+          <select id="edit-produto_id" name="produto_id" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required></select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Data</label>
+          <input type="datetime-local" id="edit-data_pedido" name="data_pedido" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Status</label>
+          <select id="edit-status" name="status" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" required>
+            <option value="Pendente">Pendente</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Entregue">Entregue</option>
+          </select>
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700">Total</label>
+          <input type="number" id="edit-total" name="total" class="mt-1 p-2 border border-gray-300 w-full rounded-lg focus:ring-teal-500 focus:border-teal-500" step="0.01" required>
+        </div>
+        <div class="text-right space-x-2">
+          <button type="button" onclick="fecharModal('editModal')" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200">Cancelar</button>
+          <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover-bg-teal-dark transition duration-200">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "http://127.0.0.1:8000/pedidos";
+    const produtosUrl = "http://127.0.0.1:8000/produtos";
+    const clientesUrl = "http://127.0.0.1:8000/clientes";
+    let pedidosData = [];
+    let statusChartInstance = null;
+    let totalChartInstance = null;
+  
+    // Função para buscar pedidos
+    async function fetchPedidos(statusFilter = "") {
+      // (mantém igual ao original)
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clienteIdFilter = urlParams.get('cliente_id');
+        let url = apiUrl;
+  
+        if (statusFilter) {
+          url += `?status=${encodeURIComponent(statusFilter)}`;
+        }
+  
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Erro na API: ${response.status}`);
+        }
+        let pedidos = await response.json();
+  
+        const cardContainer = document.getElementById("card-container");
+        cardContainer.innerHTML = "";
+  
+        let filteredPedidos = pedidos;
+        if (clienteIdFilter) {
+          filteredPedidos = filteredPedidos.filter(p => p.cliente_id == clienteIdFilter);
+        }
+  
+        if (statusFilter && statusFilter !== "") {
+          filteredPedidos = filteredPedidos.filter(p => p.status.toLowerCase() === statusFilter.toLowerCase());
+        }
+  
+        pedidosData = filteredPedidos;
+  
+        filteredPedidos.forEach(pedido => {
+          const card = `
+            <div class="bg-white shadow-lg rounded-xl p-6 transform hover:scale-105 transition duration-300">
+              <h3 class="text-xl font-bold text-gray-800">${pedido.cliente.nome}</h3>
+              <p class="text-gray-600 text-sm mt-1">Produto: ${pedido.produto.nome}</p>
+              <p class="text-gray-600 text-sm">Data: ${new Date(pedido.data_pedido).toLocaleString()}</p>
+              <p class="text-gray-600 text-sm">Status: <span class="font-medium">${pedido.status}</span></p>
+              <p class="text-teal-600 font-semibold mt-2">Total: R$ ${pedido.total.toFixed(2)}</p>
+              <div class="mt-4 flex justify-end space-x-2">
+                <button onclick="editarPedido(${pedido.id})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition duration-200">Editar</button>
+                <button onclick="excluirPedido(${pedido.id})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200">Excluir</button>
+              </div>
+            </div>
+          `;
+          cardContainer.insertAdjacentHTML("beforeend", card);
+        });
+  
+        document.getElementById("pedidos-count").textContent = filteredPedidos.length;
+        updateDashboard(filteredPedidos);
+      } catch (error) {
+        console.error("Erro ao buscar pedidos:", error);
+        alert("Houve um problema ao filtrar os pedidos. Verifique a API ou os dados retornados.");
+      }
+    }
+  
+    // Função para carregar opções de produtos e clientes
+    async function loadSelectOptions() {
+      try {
+        const produtosResponse = await fetch(produtosUrl);
+        if (!produtosResponse.ok) throw new Error("Erro ao carregar produtos");
+        const produtosData = await produtosResponse.json();
+        const produtosSelectAdd = document.getElementById("produto_id");
+        const produtosSelectEdit = document.getElementById("edit-produto_id");
+        produtosSelectAdd.innerHTML = '<option value="">Selecione um produto</option>';
+        produtosSelectEdit.innerHTML = '<option value="">Selecione um produto</option>';
+        produtosData.forEach(produto => {
+          const optionAdd = document.createElement("option");
+          optionAdd.value = produto.id;
+          optionAdd.textContent = `${produto.nome} (Estoque: ${produto.estoque})`;
+          produtosSelectAdd.appendChild(optionAdd);
+          produtosSelectEdit.appendChild(optionAdd.cloneNode(true));
+        });
+  
+        const clientesResponse = await fetch(clientesUrl);
+        if (!clientesResponse.ok) throw new Error("Erro ao carregar clientes");
+        const clientesData = await clientesResponse.json();
+        const clientesSelectAdd = document.getElementById("cliente_id");
+        const clientesSelectEdit = document.getElementById("edit-cliente_id");
+        clientesSelectAdd.innerHTML = '<option value="">Selecione um cliente</option>';
+        clientesSelectEdit.innerHTML = '<option value="">Selecione um cliente</option>';
+        clientesData.forEach(cliente => {
+          const optionAdd = document.createElement("option");
+          optionAdd.value = cliente.id;
+          optionAdd.textContent = cliente.nome;
+          clientesSelectAdd.appendChild(optionAdd);
+          clientesSelectEdit.appendChild(optionAdd.cloneNode(true));
+        });
+  
+        const urlParams = new URLSearchParams(window.location.search);
+        const clienteIdFilter = urlParams.get('cliente_id');
+        if (clienteIdFilter) {
+          clientesSelectAdd.value = clienteIdFilter;
+        }
+      } catch (error) {
+        console.error("Erro ao carregar produtos e clientes:", error);
+        alert("Erro ao carregar clientes ou produtos. Verifique a API.");
+      }
+    }
+  
+    // Função para buscar informações do produto
+    async function fetchProdutoInfo(produtoId) {
+      try {
+        const response = await fetch(`${produtosUrl}/${produtoId}`);
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar produto: ${response.status}`);
+        }
+        const produto = await response.json();
+        return { preco: produto.preco, estoque: produto.estoque };
+      } catch (error) {
+        console.error("Erro ao buscar informações do produto:", error);
+        return { preco: 0, estoque: 0 };
+      }
+    }
+  
+    // Função para atualizar o estoque do produto
+    async function updateProdutoEstoque(produtoId, novoEstoque) {
+      try {
+        const response = await fetch(`${produtosUrl}/${produtoId}`, {
+          method: "PUT", // Alterado de PATCH para PUT
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ estoque: novoEstoque }) // Apenas o campo estoque é enviado
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Erro ao atualizar estoque: ${response.status} - ${errorData.detail || 'Detalhe não disponível'}`);
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar estoque:", error);
+        throw error;
+      }
+    }
+  
+    // Evento para atualizar o total ao selecionar um produto
+    document.getElementById("produto_id").addEventListener("change", async (e) => {
+      const produtoId = e.target.value;
+      const totalInput = document.getElementById("total");
+      if (produtoId) {
+        const { preco } = await fetchProdutoInfo(produtoId);
+        totalInput.value = preco.toFixed(2);
+      } else {
+        totalInput.value = "";
+      }
+    });
+  
+    // Função para adicionar pedido e atualizar estoque
+    document.getElementById("form-add").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cliente_id = document.getElementById("cliente_id").value;
+      const produto_id = document.getElementById("produto_id").value;
+      const data_pedido = new Date(document.getElementById("data_pedido").value).toISOString();
+      const status = document.getElementById("status").value;
+      const total = parseFloat(document.getElementById("total").value) || 0;
+  
+      try {
+        // Busca informações do produto
+        const { estoque } = await fetchProdutoInfo(produto_id);
+  
+        // Verifica se há estoque suficiente
+        if (estoque <= 0) {
+          alert("Estoque insuficiente para este produto!");
+          return;
+        }
+  
+        // Adiciona o pedido
+        const pedidoResponse = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cliente_id, produto_id, data_pedido, status, total })
+        });
+        if (!pedidoResponse.ok) {
+          const errorData = await pedidoResponse.json();
+          throw new Error(`Erro ao salvar pedido: ${pedidoResponse.status} - ${errorData.detail || 'Detalhe não disponível'}`);
+        }
+  
+        // Diminui o estoque em 1
+        const novoEstoque = estoque - 1;
+        await updateProdutoEstoque(produto_id, novoEstoque);
+  
+        // Fecha o modal e atualiza a lista de pedidos
+        fecharModal("addModal");
+        await loadSelectOptions(); // Atualiza o dropdown com o novo estoque
+        fetchPedidos(document.getElementById("status-filter").value);
+      } catch (error) {
+        console.error("Erro ao adicionar pedido ou atualizar estoque:", error);
+        alert(`Erro: ${error.message}`);
+      }
+    });
+  
+    // Função para editar pedido (mantém igual ao original)
+    async function editarPedido(id) {
+      try {
+        const response = await fetch(`${apiUrl}/${id}`);
+        const pedido = await response.json();
+  
+        document.getElementById("edit-cliente_id").value = pedido.cliente_id;
+        document.getElementById("edit-produto_id").value = pedido.produto_id;
+        document.getElementById("edit-data_pedido").value = pedido.data_pedido.slice(0, 16);
+        document.getElementById("edit-status").value = pedido.status;
+        document.getElementById("edit-total").value = pedido.total;
+  
+        abrirModal("editModal");
+  
+        document.getElementById("form-edit").onsubmit = async function (e) {
+          e.preventDefault();
+          const cliente_id = document.getElementById("edit-cliente_id").value;
+          const produto_id = document.getElementById("edit-produto_id").value;
+          const data_pedido = new Date(document.getElementById("edit-data_pedido").value).toISOString();
+          const status = document.getElementById("edit-status").value;
+          const total = parseFloat(document.getElementById("edit-total").value);
+  
+          try {
+            await fetch(`${apiUrl}/${id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ cliente_id, produto_id, data_pedido, status, total })
+            });
+            fecharModal("editModal");
+            fetchPedidos(document.getElementById("status-filter").value);
+          } catch (error) {
+            console.error("Erro ao editar pedido:", error);
+          }
+        };
+      } catch (error) {
+        console.error("Erro ao carregar pedido:", error);
+      }
+    }
+  
+    // Função para excluir pedido (mantém igual ao original)
+    async function excluirPedido(id) {
+      try {
+        await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        fetchPedidos(document.getElementById("status-filter").value);
+      } catch (error) {
+        console.error("Erro ao excluir pedido:", error);
+      }
+    }
+  
+    // Função para gerar PDF (mantém igual ao original)
+    function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+  
+      doc.setFontSize(18);
+      doc.setTextColor(15, 118, 110);
+      doc.text("Relatório de Pedidos - BusinessSync", 20, 20);
+  
+      doc.setFontSize(12);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Total de Pedidos: ${pedidosData.length}`, 20, 30);
+      doc.text(`Gerado em: ${new Date().toLocaleString()}`, 20, 38);
+  
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(15, 118, 110);
+      doc.line(20, 45, 190, 45);
+  
+      let y = 55;
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      pedidosData.forEach((pedido, index) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(`Pedido #${index + 1}`, 20, y);
+        doc.text(`Cliente: ${pedido.cliente.nome}`, 20, y + 5);
+        doc.text(`Produto: ${pedido.produto.nome}`, 20, y + 10);
+        doc.text(`Data: ${new Date(pedido.data_pedido).toLocaleString()}`, 20, y + 15);
+        doc.text(`Status: ${pedido.status}`, 20, y + 20);
+        doc.text(`Total: R$ ${pedido.total.toFixed(2)}`, 20, y + 25);
+        y += 35;
+      });
+  
+      doc.save("relatorio_pedidos.pdf");
+    }
+  
+    // Função para atualizar o dashboard (mantém igual ao original)
+    function updateDashboard(pedidos) {
+      const statusCount = pedidos.reduce((acc, pedido) => {
+        acc[pedido.status] = (acc[pedido.status] || 0) + 1;
+        return acc;
+      }, {});
+      const statusLabels = Object.keys(statusCount);
+      const statusData = Object.values(statusCount);
+  
+      const totalPorMes = pedidos.reduce((acc, pedido) => {
+        const mes = new Date(pedido.data_pedido).toLocaleString('default', { month: 'short', year: 'numeric' });
+        acc[mes] = (acc[mes] || 0) + pedido.total;
+        return acc;
+      }, {});
+      const totalLabels = Object.keys(totalPorMes);
+      const totalData = Object.values(totalPorMes);
+  
+      if (statusChartInstance) statusChartInstance.destroy();
+      if (totalChartInstance) totalChartInstance.destroy();
+  
+      const statusCtx = document.getElementById('statusChart').getContext('2d');
+      statusChartInstance = new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+          labels: statusLabels,
+          datasets: [{
+            data: statusData,
+            backgroundColor: ['#0F766E', '#1E3A8A', '#EF4444'],
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            title: { display: true, text: 'Distribuição por Status', font: { size: 12 } },
+            legend: { labels: { font: { size: 8 } } }
+          }
+        }
+      });
+  
+      const totalCtx = document.getElementById('totalChart').getContext('2d');
+      totalChartInstance = new Chart(totalCtx, {
+        type: 'bar',
+        data: {
+          labels: totalLabels,
+          datasets: [{
+            label: 'Total (R$)',
+            data: totalData,
+            backgroundColor: '#0F766E',
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          scales: { 
+            y: { beginAtZero: true, ticks: { font: { size: 8 } } },
+            x: { ticks: { font: { size: 8 } } }
+          },
+          plugins: {
+            title: { display: true, text: 'Total por Mês', font: { size: 12 } },
+            legend: { labels: { font: { size: 8 } } }
+          }
+        }
+      });
+    }
+  
+    // Funções para abrir e fechar modal
+    function abrirModal(modalId) {
+      document.getElementById(modalId).classList.remove("hidden");
+    }
+  
+    function fecharModal(modalId) {
+      document.getElementById(modalId).classList.add("hidden");
+    }
+  
+    // Carregar dados ao iniciar e configurar filtro
+    window.onload = async () => {
+      await loadSelectOptions(); // Carrega clientes e produtos primeiro
+      fetchPedidos(); // Depois carrega os pedidos
+  
+      document.getElementById('status-filter').addEventListener('change', (e) => {
+        fetchPedidos(e.target.value);
+      });
+    };
+  
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      localStorage.removeItem('access_token');
+      window.location.href = '/';
+    });
+  </script>
